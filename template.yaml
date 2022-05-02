@@ -1,2 +1,33 @@
-some string
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: 'AWS::Serverless-2016-10-31'
 
+Description: GPS2 POC
+
+Resources:
+  ChecksuitLambda:
+    Type: 'AWS::Serverless::Function'
+    Properties:
+      CodeUri: checksuit
+      Description: entrypoint for github hooks
+      Handler: src.lambda_function.lambda_handler
+      Runtime: python3.9
+      Timeout: 10
+      Layers:
+        - !Ref CFRipperLayer
+      FunctionUrlConfig:
+        AuthType: NONE
+
+  CFRipperLayer:
+    Type: AWS::Lambda::LayerVersion
+    Properties:
+      LayerName: cf-ripper-layer
+      Description: Dependencies for cf ripper scan
+      Content:
+        S3Bucket: cf-ripper-bucket
+        S3Key: cfripper-layer.zip
+      CompatibleRuntimes:
+        - python3.9 
+
+Outputs:
+  ChecksuitLambdaUrl:
+    Value: !GetAtt ChecksuitLambdaUrl.FunctionUrl
