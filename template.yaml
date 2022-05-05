@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  CfRipperScan
+  Scan template JSON against CF Ripper rules
+
+Globals:
+  Function:
+    Timeout: 30
+
+Resources:
+  CfRipperScanFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: cfripper_scan
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Events:
+        JsonTemplate:
+          Type: Api 
+          Properties:
+            Path: /scan
+            Method: post
+      Policies:
+        - Statement:
+          - Sid: AssumeRolePolicy
+            Effect: Allow
+            Action: sts:AssumeRole
+            Resource: '*'
+  UnsafeBucketino:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: security-breach-bucket
+      AccessControl: PublicRead
+
+Outputs:
+  CfRipperScanFunctionApi:
+    Description: "API Gateway endpoint URL for Prod stage for CF Ripper function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/CFRipperScan/"
+  CfRipperScanFunction:
+    Description: "CF Ripper Scan Lambda Function ARN"
+    Value: !GetAtt CfRipperScanFunction.Arn
+  CfRipperScanFunctionIamRole:
+    Description: "Implicit IAM Role created for CF Ripper function"
+    Value: !GetAtt CfRipperScanFunctionRole.Arn
