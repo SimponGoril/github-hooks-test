@@ -34,6 +34,11 @@ Resources:
     Properties:
       BucketName: security-breach-bucket
       AccessControl: PublicRead
+  SuspiciousBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: security-breach-bucket222
+      AccessControl: PublicRead
 
 Outputs:
   CfRipperScanFunctionApi:
